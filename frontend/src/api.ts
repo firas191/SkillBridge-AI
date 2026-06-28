@@ -1,5 +1,9 @@
 import type {
   AdhocMatchResponse,
+  InterviewPlan,
+  InterviewPlanRequest,
+  InterviewReport,
+  InterviewReportRequest,
   LearningPlan,
   LearningPlanRequest,
 } from "./types";
@@ -58,4 +62,26 @@ export async function generateLearningPlan(
     body: JSON.stringify(payload),
   });
   return handle<LearningPlan>(res);
+}
+
+export async function startInterview(
+  payload: InterviewPlanRequest,
+): Promise<InterviewPlan> {
+  const res = await fetch(`${API_BASE}/interview/start`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(payload),
+  });
+  return handle<InterviewPlan>(res);
+}
+
+export async function getInterviewReport(
+  payload: InterviewReportRequest,
+): Promise<InterviewReport> {
+  const res = await fetch(`${API_BASE}/interview/report`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(payload),
+  });
+  return handle<InterviewReport>(res);
 }

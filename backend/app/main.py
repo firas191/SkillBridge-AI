@@ -16,7 +16,15 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 
 from app import __version__
-from app.api.routes import candidates, documents, health, jobs, learning, matching
+from app.api.routes import (
+    candidates,
+    documents,
+    health,
+    interview,
+    jobs,
+    learning,
+    matching,
+)
 from app.core.config import get_settings
 from app.core.llm import LLMCallError, LLMNotConfiguredError
 from app.core.logging import configure_logging, get_logger
@@ -72,6 +80,7 @@ def create_app() -> FastAPI:
     app.include_router(jobs.router)
     app.include_router(matching.router)
     app.include_router(learning.router)
+    app.include_router(interview.router)
 
     @app.get("/", tags=["system"])
     def root() -> dict:

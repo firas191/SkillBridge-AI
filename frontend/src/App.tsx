@@ -7,13 +7,18 @@ import type {
 } from "./types";
 import ResultView from "./components/ResultView";
 import LearningPlanView from "./components/LearningPlanView";
+import InterviewPanel from "./components/InterviewPanel";
 import Logo from "./components/Logo";
+
+function candidateStrengths(d: AdhocMatchResponse): string[] {
+  const s = new Set<string>();
+  d.result.matched_skills.forEach((m) => s.add(m.candidate_skill || m.requirement));
+  d.result.extra_skills.forEach((x) => s.add(x));
+  return Array.from(s).slice(0, 25);
+}
 
 function buildPlanRequest(d: AdhocMatchResponse, hours: number): LearningPlanRequest {
   const r = d.result;
-  const strengths = new Set<string>();
-  r.matched_skills.forEach((m) => strengths.add(m.candidate_skill || m.requirement));
-  r.extra_skills.forEach((s) => strengths.add(s));
   return {
     candidate_name: r.candidate_name || d.candidate.name || "Candidate",
     job_title: r.job_title || d.job.title || "the role",
@@ -22,7 +27,7 @@ function buildPlanRequest(d: AdhocMatchResponse, hours: number): LearningPlanReq
       importance: g.importance,
       severity: g.severity,
     })),
-    strengths: Array.from(strengths).slice(0, 25),
+    strengths: candidateStrengths(d),
     weekly_hours: hours,
   };
 }
@@ -397,6 +402,23 @@ export default function App() {
       )}
 
       {plan && <LearningPlanView plan={plan} />}
+
+      {data && (
+        <div className="sec">
+          <span className="sec-n">04</span>
+          <span className="sec-t">Interview practice</span>
+          <span className="sec-rule" />
+        </div>
+      )}
+      {data && (
+        <InterviewPanel
+          candidateName={data.result.candidate_name || data.candidate.name || "Candidate"}
+          jobTitle={data.result.job_title || data.job.title || "the role"}
+          strengths={candidateStrengths(data)}
+          gaps={data.result.gaps.map((g) => g.skill)}
+          summary={data.result.summary}
+        />
+      )}
       </main>
     </div>
   );

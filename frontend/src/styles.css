@@ -280,3 +280,28 @@ button {
 .mission-deliv { margin-top: 10px; font-size: 13px; color: var(--accent-deep); }
 .deliv-label { font-weight: 700; text-transform: uppercase; font-size: 9.5px; letter-spacing: 0.08em; color: var(--accent); margin-right: 7px; }
 .closing { margin-top: 22px; padding-top: 18px; border-top: 1px solid var(--line); text-align: center; font-size: 18px; font-style: italic; font-family: var(--serif); color: var(--ink); }
+
+/* ============================================================ interview */
+.iv-start { display: flex; align-items: center; justify-content: space-between; gap: 20px; flex-wrap: wrap; }
+.iv-start h3 { margin: 0 0 4px; font-size: 18px; }
+.iv-start-actions { display: flex; align-items: flex-end; gap: 14px; }
+.iv-loading { display: flex; align-items: center; gap: 12px; color: var(--ink-2); font-size: 14px; }
+
+.iv-room { }
+.iv-top { display: flex; align-items: center; justify-content: space-between; margin-bottom: 14px; }
+.iv-progress { font-size: 11px; font-weight: 600; letter-spacing: 0.12em; text-transform: uppercase; color: var(--muted); }
+.iv-intro { font-family: var(--serif); font-style: italic; color: var(--ink-2); font-size: 14.5px; margin: 0 0 14px; }
+.iv-question { font-family: var(--serif); font-size: 21px; font-weight: 600; line-height: 1.3; letter-spacing: -0.01em; margin-bottom: 14px; }
+.iv-answer { min-height: 150px; }
+.iv-nav { display: flex; justify-content: space-between; gap: 12px; margin-top: 14px; }
+.iv-nav .btn-ghost:disabled { opacity: 0.4; cursor: not-allowed; }
+
+.iv-report { margin-top: 4px; }
+.iv-assess .skhead { align-items: flex-start; }
+.iv-grade { flex: none; font-family: var(--serif); font-weight: 600; font-size: 16px; color: var(--accent); }
+.iv-points { margin: 10px 0 0; padding-left: 18px; }
+.iv-points li { font-size: 13px; line-height: 1.55; color: var(--muted); }
+.iv-cols { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; }
+@media (max-width: 700px) { .iv-cols { grid-template-columns: 1fr; gap: 0; } }
+.iv-list { margin: 0; padding-left: 18px; }
+.iv-list li { font-size: 14px; line-height: 1.6; color: var(--ink-2); margin-bottom: 4px; }

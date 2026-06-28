@@ -187,6 +187,8 @@ while ESCO fills the long tail.
 | POST   | `/match`                  | Score a stored candidate against a stored job        |
 | POST   | `/match/adhoc`            | One-shot: paste CV + job, get explainable result     |
 | POST   | `/learning-plan`          | Turn match gaps into a sequenced, resourced learning plan |
+| POST   | `/interview/start`        | Generate tailored mock-interview questions               |
+| POST   | `/interview/report`       | Grade an answered transcript into a scored debrief       |
 
 Full interactive schema at `/docs`.
 
@@ -216,8 +218,10 @@ modules from the brief build directly on it:
    sequenced upskilling roadmap: prioritized skill modules (concepts, steps, a
    portfolio practice project, real resources) plus week-by-week missions.
    See `POST /learning-plan` and the in-app "Generate learning plan" flow.
-2. **Interview Simulator** — rubric-based, role-specific interviews seeded from
-   the candidate's real evidence and the job's requirements (system/chat memory).
+2. ~~**Interview Simulator**~~ ✅ **Built** — a role-specific mock interview:
+   tailored questions from the candidate's strengths + the role's gaps, answered
+   one at a time, then a rubric-scored debrief (per-answer feedback, strengths,
+   improvements, next steps). See `POST /interview/start` + `/interview/report`.
 3. **HR Agent with tools** — a tool-using agent calling live job-market / salary
    APIs to enrich and benchmark match results.
 4. **AI Career Twin** — a persisted, evolving profile across learn → practice →

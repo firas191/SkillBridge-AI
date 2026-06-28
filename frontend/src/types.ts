@@ -134,3 +134,58 @@ export interface LearningPlanRequest {
   strengths: string[];
   weekly_hours: number;
 }
+
+// ---- Interview Simulator ----
+export interface InterviewQuestion {
+  id: number;
+  question: string;
+  focus: string;
+  type: string;
+  what_good_looks_like: string;
+}
+
+export interface InterviewPlan {
+  intro: string;
+  questions: InterviewQuestion[];
+}
+
+export interface InterviewPlanRequest {
+  candidate_name: string;
+  job_title: string;
+  summary?: string;
+  strengths: string[];
+  gaps: string[];
+  num_questions: number;
+}
+
+export interface TranscriptTurn {
+  question: string;
+  focus: string;
+  what_good_looks_like: string;
+  answer: string;
+}
+
+export interface InterviewReportRequest {
+  candidate_name: string;
+  job_title: string;
+  transcript: TranscriptTurn[];
+}
+
+export interface AnswerAssessment {
+  question: string;
+  score: number;
+  feedback: string;
+  strong_answer_points: string[];
+}
+
+export interface InterviewReport {
+  candidate_name: string;
+  job_title: string;
+  overall_score: number;
+  verdict: string;
+  summary: string;
+  assessments: AnswerAssessment[];
+  strengths: string[];
+  improvements: string[];
+  next_steps: string[];
+}
