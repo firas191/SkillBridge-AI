@@ -1,0 +1,88 @@
+{
+  "version": "1.0.0",
+  "note": "Curated, verified learning resources keyed by canonical skill id. Authoritative official docs + a high-quality free resource where applicable. The LLM augments these per plan; uncatalogued skills fall back to trusted-platform search links.",
+  "resources": {
+    "python": [
+      {"title": "Official Python Tutorial", "url": "https://docs.python.org/3/tutorial/", "type": "docs"},
+      {"title": "freeCodeCamp — Python", "url": "https://www.freecodecamp.org/learn/scientific-computing-with-python/", "type": "course"}
+    ],
+    "javascript": [
+      {"title": "MDN — JavaScript Guide", "url": "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Guide", "type": "docs"},
+      {"title": "javascript.info", "url": "https://javascript.info/", "type": "course"}
+    ],
+    "typescript": [
+      {"title": "TypeScript Handbook", "url": "https://www.typescriptlang.org/docs/handbook/intro.html", "type": "docs"}
+    ],
+    "react": [
+      {"title": "React — Learn", "url": "https://react.dev/learn", "type": "docs"},
+      {"title": "Scrimba — Learn React (free)", "url": "https://scrimba.com/learn/learnreact", "type": "course"}
+    ],
+    "vue": [{"title": "Vue.js Guide", "url": "https://vuejs.org/guide/introduction.html", "type": "docs"}],
+    "angular": [{"title": "Angular — Learn", "url": "https://angular.dev/tutorials", "type": "docs"}],
+    "node-js": [{"title": "Node.js — Learn", "url": "https://nodejs.org/en/learn", "type": "docs"}],
+    "html": [{"title": "MDN — HTML", "url": "https://developer.mozilla.org/en-US/docs/Learn/HTML", "type": "docs"}],
+    "css": [{"title": "MDN — CSS", "url": "https://developer.mozilla.org/en-US/docs/Learn/CSS", "type": "docs"}],
+    "tailwind": [{"title": "Tailwind CSS Docs", "url": "https://tailwindcss.com/docs/installation", "type": "docs"}],
+    "fastapi": [{"title": "FastAPI — Tutorial", "url": "https://fastapi.tiangolo.com/tutorial/", "type": "docs"}],
+    "django": [{"title": "Django — Getting Started", "url": "https://docs.djangoproject.com/en/stable/intro/", "type": "docs"}],
+    "flask": [{"title": "Flask — Quickstart", "url": "https://flask.palletsprojects.com/en/stable/quickstart/", "type": "docs"}],
+    "spring-boot": [{"title": "Spring Boot — Guides", "url": "https://spring.io/guides", "type": "docs"}],
+    "rest-api": [{"title": "MDN — HTTP & REST", "url": "https://developer.mozilla.org/en-US/docs/Web/HTTP", "type": "docs"}],
+    "graphql": [{"title": "GraphQL — Learn", "url": "https://graphql.org/learn/", "type": "docs"}],
+    "sql": [
+      {"title": "Mode — SQL Tutorial", "url": "https://mode.com/sql-tutorial/", "type": "course"},
+      {"title": "PostgreSQL Tutorial", "url": "https://www.postgresqltutorial.com/", "type": "docs"}
+    ],
+    "postgresql": [{"title": "PostgreSQL Documentation", "url": "https://www.postgresql.org/docs/current/", "type": "docs"}],
+    "mongodb": [{"title": "MongoDB University (free)", "url": "https://learn.mongodb.com/", "type": "course"}],
+    "redis": [{"title": "Redis — Docs", "url": "https://redis.io/docs/latest/", "type": "docs"}],
+    "data-analysis": [{"title": "Kaggle — Data Analysis", "url": "https://www.kaggle.com/learn", "type": "course"}],
+    "pandas": [{"title": "pandas — Getting Started", "url": "https://pandas.pydata.org/docs/getting_started/index.html", "type": "docs"}],
+    "numpy": [{"title": "NumPy — Absolute Beginners", "url": "https://numpy.org/doc/stable/user/absolute_beginners.html", "type": "docs"}],
+    "statistics": [{"title": "Khan Academy — Statistics", "url": "https://www.khanacademy.org/math/statistics-probability", "type": "course"}],
+    "data-visualization": [{"title": "Matplotlib — Tutorials", "url": "https://matplotlib.org/stable/tutorials/index.html", "type": "docs"}],
+    "machine-learning": [
+      {"title": "Google ML Crash Course (free)", "url": "https://developers.google.com/machine-learning/crash-course", "type": "course"},
+      {"title": "scikit-learn — Tutorials", "url": "https://scikit-learn.org/stable/tutorial/index.html", "type": "docs"}
+    ],
+    "deep-learning": [{"title": "fast.ai — Practical Deep Learning (free)", "url": "https://course.fast.ai/", "type": "course"}],
+    "scikit-learn": [{"title": "scikit-learn — User Guide", "url": "https://scikit-learn.org/stable/user_guide.html", "type": "docs"}],
+    "pytorch": [{"title": "PyTorch — Tutorials", "url": "https://pytorch.org/tutorials/", "type": "docs"}],
+    "tensorflow": [{"title": "TensorFlow — Tutorials", "url": "https://www.tensorflow.org/tutorials", "type": "docs"}],
+    "nlp": [{"title": "Hugging Face — NLP Course (free)", "url": "https://huggingface.co/learn/nlp-course", "type": "course"}],
+    "llm": [{"title": "Hugging Face — LLM Course", "url": "https://huggingface.co/learn/llm-course", "type": "course"}],
+    "langchain": [{"title": "LangChain — Docs", "url": "https://python.langchain.com/docs/introduction/", "type": "docs"}],
+    "rag": [{"title": "LangChain — RAG Tutorial", "url": "https://python.langchain.com/docs/tutorials/rag/", "type": "docs"}],
+    "prompt-engineering": [{"title": "Google — Prompting Guide", "url": "https://developers.google.com/machine-learning/resources/prompt-eng", "type": "article"}],
+    "vector-databases": [{"title": "Pinecone — Learn", "url": "https://www.pinecone.io/learn/", "type": "article"}],
+    "computer-vision": [{"title": "OpenCV — Tutorials", "url": "https://docs.opencv.org/4.x/d9/df8/tutorial_root.html", "type": "docs"}],
+    "mlops": [{"title": "Made With ML — MLOps (free)", "url": "https://madewithml.com/", "type": "course"}],
+    "docker": [{"title": "Docker — Get Started", "url": "https://docs.docker.com/get-started/", "type": "docs"}],
+    "kubernetes": [{"title": "Kubernetes — Tutorials", "url": "https://kubernetes.io/docs/tutorials/", "type": "docs"}],
+    "git": [{"title": "Pro Git (free book)", "url": "https://git-scm.com/book/en/v2", "type": "docs"}],
+    "linux": [{"title": "The Linux Command Line (free)", "url": "https://linuxcommand.org/tlcl.php", "type": "docs"}],
+    "bash": [{"title": "Bash Guide for Beginners", "url": "https://tldp.org/LDP/Bash-Beginners-Guide/html/", "type": "docs"}],
+    "aws": [{"title": "AWS — Getting Started", "url": "https://aws.amazon.com/getting-started/", "type": "docs"}],
+    "azure": [{"title": "Microsoft Learn — Azure", "url": "https://learn.microsoft.com/en-us/training/azure/", "type": "course"}],
+    "gcp": [{"title": "Google Cloud — Training", "url": "https://cloud.google.com/learn/training", "type": "course"}],
+    "terraform": [{"title": "Terraform — Tutorials", "url": "https://developer.hashicorp.com/terraform/tutorials", "type": "docs"}],
+    "ci-cd": [{"title": "GitHub Actions — Docs", "url": "https://docs.github.com/en/actions", "type": "docs"}],
+    "go": [{"title": "Go — Tour & Learn", "url": "https://go.dev/learn/", "type": "docs"}],
+    "rust": [{"title": "The Rust Book (free)", "url": "https://doc.rust-lang.org/book/", "type": "docs"}],
+    "java": [{"title": "dev.java — Learn", "url": "https://dev.java/learn/", "type": "docs"}],
+    "tableau": [{"title": "Tableau — Free Training", "url": "https://www.tableau.com/learn/training", "type": "course"}],
+    "powerbi": [{"title": "Microsoft Learn — Power BI", "url": "https://learn.microsoft.com/en-us/training/powerplatform/power-bi", "type": "course"}],
+    "excel": [{"title": "Microsoft — Excel Training", "url": "https://support.microsoft.com/en-us/office/excel-video-training-9bc05390-e94c-46af-a5b3-d7c22f6990bb", "type": "video"}],
+    "figma": [{"title": "Figma — Learn Design", "url": "https://www.figma.com/resource-library/", "type": "course"}],
+    "ux-design": [{"title": "Google UX Design (Coursera)", "url": "https://www.coursera.org/professional-certificates/google-ux-design", "type": "course"}],
+    "agile": [{"title": "Atlassian — Agile Coach", "url": "https://www.atlassian.com/agile", "type": "article"}],
+    "product-management": [{"title": "Atlassian — Product Management", "url": "https://www.atlassian.com/agile/product-management", "type": "article"}],
+    "project-management": [{"title": "Google Project Management (Coursera)", "url": "https://www.coursera.org/professional-certificates/google-project-management", "type": "course"}],
+    "cybersecurity": [{"title": "TryHackMe (hands-on)", "url": "https://tryhackme.com/", "type": "practice"}],
+    "digital-marketing": [{"title": "Google Digital Garage", "url": "https://learndigital.withgoogle.com/digitalgarage", "type": "course"}],
+    "seo": [{"title": "Google — SEO Starter Guide", "url": "https://developers.google.com/search/docs/fundamentals/seo-starter-guide", "type": "docs"}],
+    "communication": [{"title": "Coursera — Improving Communication Skills", "url": "https://www.coursera.org/learn/wharton-communication-skills", "type": "course"}],
+    "leadership": [{"title": "Coursera — Leadership Specialization", "url": "https://www.coursera.org/specializations/leadership-development-for-engineers", "type": "course"}],
+    "problem-solving": [{"title": "Coursera — Creative Problem Solving", "url": "https://www.coursera.org/learn/creative-problem-solving", "type": "course"}]
+  }
+}

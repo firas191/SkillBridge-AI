@@ -1,0 +1,18 @@
+# SkillBridge AI — local model definition (tuned for entry-level GPUs).
+#
+# Llama 3.2 3B: small and fast enough to run on a 4-8GB GPU without heavy CPU
+# offload, with a 4096-token context that still fits a full CV + job posting.
+# (Llama 3.1 8B is higher quality but too large for an entry GPU — it offloads
+# to CPU and times out. Use 8B only on a 12GB+ GPU.)
+#
+# Build it once (from the repo root):
+#   ollama pull llama3.2:3b
+#   ollama create skillbridge-fast -f ollama/Modelfile
+#
+# backend/.env points OPENAI_CHAT_MODEL at it.
+
+FROM llama3.2:3b
+
+# 4096-token context: fits typical CVs while keeping the KV cache small enough
+# to stay on an entry GPU. Raise to 8192 only if you have spare VRAM.
+PARAMETER num_ctx 4096

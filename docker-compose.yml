@@ -1,0 +1,44 @@
+# SkillBridge AI — local stack.
+#
+# Default: backend talks to NVIDIA NIM (set NVIDIA_API_KEY in your shell or .env).
+#
+# Fully-local, free, unlimited alternative: start the `ollama` profile and set
+# LLM_PROVIDER=openai_compatible (see commented env below). Then:
+#   docker compose --profile local up
+#   docker compose exec ollama ollama pull llama3.1:8b
+
+services:
+  backend:
+    build:
+      context: .
+      dockerfile: backend/Dockerfile
+    ports:
+      - "8000:8000"
+    environment:
+      # ---- NVIDIA NIM (default) ----
+      LLM_PROVIDER: ${LLM_PROVIDER:-nvidia}
+      NVIDIA_API_KEY: ${NVIDIA_API_KEY:-}
+      NVIDIA_CHAT_MODEL: ${NVIDIA_CHAT_MODEL:-meta/llama-3.1-8b-instruct}
+      # ---- Local Ollama alternative (uncomment + set LLM_PROVIDER=openai_compatible) ----
+      # OPENAI_BASE_URL: http://ollama:11434/v1
+      # OPENAI_API_KEY: ollama
+      # OPENAI_CHAT_MODEL: llama3.1:8b
+      DATABASE_URL: sqlite:////data/skillbridge.db
+      CORS_ORIGINS: http://localhost:5173,http://127.0.0.1:5173
+    volumes:
+      - sb_data:/data
+    restart: unless-stopped
+
+  # Optional: local LLM server. Enable with `--profile local`.
+  ollama:
+    image: ollama/ollama:latest
+    profiles: ["local"]
+    ports:
+      - "11434:11434"
+    volumes:
+      - ollama_models:/root/.ollama
+    restart: unless-stopped
+
+volumes:
+  sb_data:
+  ollama_models:
