@@ -55,6 +55,13 @@ class Settings(BaseSettings):
     taxonomy_path: str = "data/taxonomy/skills_seed.json"
     esco_skills_csv: str = ""
     resources_path: str = "data/resources/learning_resources.json"
+    market_roles_path: str = "data/market/roles.json"
+    skill_demand_path: str = "data/market/skill_demand.json"
+
+    # Optional live jobs/salary source (Adzuna). When set, HR tools can be
+    # upgraded to query live market data instead of the bundled datasets.
+    adzuna_app_id: str = ""
+    adzuna_app_key: str = ""
 
     # ---- Application ----
     database_url: str = "sqlite:///./skillbridge.db"
@@ -78,6 +85,16 @@ class Settings(BaseSettings):
     @property
     def resources_file(self) -> Path:
         p = Path(self.resources_path)
+        return p if p.is_absolute() else (REPO_ROOT / p)
+
+    @property
+    def market_roles_file(self) -> Path:
+        p = Path(self.market_roles_path)
+        return p if p.is_absolute() else (REPO_ROOT / p)
+
+    @property
+    def skill_demand_file(self) -> Path:
+        p = Path(self.skill_demand_path)
         return p if p.is_absolute() else (REPO_ROOT / p)
 
     @property

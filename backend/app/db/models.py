@@ -10,7 +10,7 @@ from __future__ import annotations
 import uuid
 from datetime import datetime, timezone
 
-from sqlalchemy import DateTime, Float, ForeignKey, String, Text
+from sqlalchemy import DateTime, Float, ForeignKey, Integer, String, Text
 from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column, relationship
 from sqlalchemy.types import JSON
 
@@ -57,6 +57,34 @@ class Job(Base):
     matches: Mapped[list["MatchRecord"]] = relationship(
         back_populates="job", cascade="all, delete-orphan"
     )
+
+
+class TwinActivity(Base):
+    """A logged activity on a candidate's Career Twin (match / interview /
+    learning plan) — the accumulating evidence base over time."""
+
+    __tablename__ = "twin_activities"
+
+    id: Mapped[str] = mapped_column(String(32), primary_key=True, default=_uuid)
+    candidate_id: Mapped[str] = mapped_column(ForeignKey("candidates.id"))
+    kind: Mapped[str] = mapped_column(String(32), default="match")  # match|interview|learning
+    title: Mapped[str] = mapped_column(String(255), default="")
+    score: Mapped[float | None] = mapped_column(Float, nullable=True)
+    verdict: Mapped[str | None] = mapped_column(String(64), nullable=True)
+    detail: Mapped[dict] = mapped_column(JSON, default=dict)
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=_now)
+
+
+class TwinBriefingCache(Base):
+    """Cached AI briefing for a Career Twin, regenerated only when the activity
+    count changes — avoids an LLM call on every twin view."""
+
+    __tablename__ = "twin_briefings"
+
+    candidate_id: Mapped[str] = mapped_column(String(32), primary_key=True)
+    activity_count: Mapped[int] = mapped_column(Integer, default=0)
+    briefing: Mapped[dict] = mapped_column(JSON, default=dict)
+    updated_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=_now)
 
 
 class MatchRecord(Base):

@@ -13,6 +13,7 @@ interface Props {
   strengths: string[];
   gaps: string[];
   summary?: string;
+  onReport?: (report: InterviewReport) => void;
 }
 
 type Phase = "idle" | "loadingPlan" | "interviewing" | "loadingReport" | "report";
@@ -81,6 +82,7 @@ export default function InterviewPanel(props: Props) {
       });
       setReport(r);
       setPhase("report");
+      props.onReport?.(r);
     } catch (e) {
       setError(msg(e));
       setPhase("interviewing");

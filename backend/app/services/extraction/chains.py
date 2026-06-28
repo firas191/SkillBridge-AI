@@ -97,10 +97,10 @@ def _default_completer(prompt: str) -> str:
         response = model.invoke(prompt)
     except Exception as exc:  # noqa: BLE001 - normalise any provider error
         raise LLMCallError(
-            "The language model call failed or timed out. For a local model, try "
-            "a smaller/faster one (e.g. llama3.2:3b) or lower num_ctx; for NVIDIA "
-            "free tier, the 70B model is often too slow for long documents. "
-            f"(provider error: {type(exc).__name__})"
+            "The AI model call failed. This is usually a temporary provider error "
+            "or a free-tier rate limit (e.g. Gemini allows ~15 requests/minute) — "
+            "wait a minute and try again, or move to a higher tier / different "
+            f"provider in backend/.env. (provider error: {type(exc).__name__})"
         ) from exc
     return _coerce_content(getattr(response, "content", response))
 

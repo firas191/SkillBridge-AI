@@ -1,13 +1,24 @@
-import { useRef, useState } from "react";
-import { adhocMatch, extractDocText, generateLearningPlan } from "./api";
+import { useEffect, useRef, useState } from "react";
+import {
+  adhocMatch,
+  extractDocText,
+  generateLearningPlan,
+  getTwin,
+  saveToTwin,
+} from "./api";
 import type {
   AdhocMatchResponse,
+  CareerTwin,
+  InterviewReport,
   LearningPlan,
   LearningPlanRequest,
+  TwinSaveRequest,
 } from "./types";
 import ResultView from "./components/ResultView";
 import LearningPlanView from "./components/LearningPlanView";
 import InterviewPanel from "./components/InterviewPanel";
+import HRPanel from "./components/HRPanel";
+import CareerTwinView from "./components/CareerTwinView";
 import Logo from "./components/Logo";
 
 function candidateStrengths(d: AdhocMatchResponse): string[] {
@@ -163,6 +174,74 @@ export default function App() {
   const [planErr, setPlanErr] = useState<string | null>(null);
   const [weeklyHours, setWeeklyHours] = useState(8);
 
+  const [twin, setTwin] = useState<CareerTwin | null>(null);
+  const [twinId, setTwinId] = useState<string | null>(() => {
+    try {
+      return localStorage.getItem("skillbridge_twin_id");
+    } catch {
+      return null;
+    }
+  });
+  const [twinSaving, setTwinSaving] = useState(false);
+  const [twinErr, setTwinErr] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (twinId) getTwin(twinId).then(setTwin).catch(() => setTwin(null));
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  async function refreshTwin(id: string) {
+    try {
+      setTwin(await getTwin(id));
+    } catch {
+      /* ignore */
+    }
+  }
+
+  async function saveTwinActivity(
+    kind: string,
+    title: string,
+    score: number | null,
+    verdict: string | null,
+    detail: Record<string, unknown>,
+  ) {
+    if (!data) return;
+    setTwinErr(null);
+    setTwinSaving(true);
+    try {
+      const payload: TwinSaveRequest = {
+        candidate_name: data.result.candidate_name || data.candidate.name || "Candidate",
+        profile: data.candidate,
+        kind,
+        title,
+        score,
+        verdict,
+        detail,
+      };
+      const res = await saveToTwin(payload);
+      setTwinId(res.twin_id);
+      try {
+        localStorage.setItem("skillbridge_twin_id", res.twin_id);
+      } catch {
+        /* ignore */
+      }
+      await refreshTwin(res.twin_id);
+    } catch (e) {
+      setTwinErr(e instanceof Error ? e.message : "Could not save to Career Twin");
+    } finally {
+      setTwinSaving(false);
+    }
+  }
+
+  function saveMatchToTwin() {
+    if (!data) return;
+    const r = data.result;
+    saveTwinActivity("match", r.job_title || "the role", r.overall_score, r.verdict, {
+      gaps: r.gaps.map((g) => g.skill),
+      summary: r.summary,
+    });
+  }
+
   async function handleFile(file: File, which: "cv" | "job") {
     const setBusy = which === "cv" ? setCvBusy : setJobBusy;
     const setErr = which === "cv" ? setCvErr : setJobErr;
@@ -218,7 +297,14 @@ export default function App() {
     setPlan(null);
     setPlanLoading(true);
     try {
-      setPlan(await generateLearningPlan(buildPlanRequest(data, weeklyHours)));
+      const p = await generateLearningPlan(buildPlanRequest(data, weeklyHours));
+      setPlan(p);
+      if (twinId) {
+        saveTwinActivity("learning", data.result.job_title || "the role", null, null, {
+          weeks: p.total_weeks,
+          modules: p.modules.length,
+        });
+      }
     } catch (e) {
       setPlanErr(e instanceof Error ? e.message : "Failed to generate plan");
     } finally {
@@ -353,6 +439,16 @@ export default function App() {
       {data && <ResultView data={data} />}
 
       {data && (
+        <div className="twin-save">
+          <button className="btn-ghost btn-sm" onClick={saveMatchToTwin} disabled={twinSaving}>
+            {twinSaving ? "Saving…" : twin ? "↑ Update Career Twin" : "↑ Save to Career Twin"}
+          </button>
+          <span className="muted">Build a living profile across every role you check.</span>
+          {twinErr && <span className="doc-error">{twinErr}</span>}
+        </div>
+      )}
+
+      {data && (
         <div className="sec">
           <span className="sec-n">03</span>
           <span className="sec-t">Development plan</span>
@@ -417,8 +513,46 @@ export default function App() {
           strengths={candidateStrengths(data)}
           gaps={data.result.gaps.map((g) => g.skill)}
           summary={data.result.summary}
+          onReport={(report: InterviewReport) => {
+            if (twinId && data)
+              saveTwinActivity(
+                "interview",
+                data.result.job_title || "the role",
+                report.overall_score,
+                report.verdict,
+                {},
+              );
+          }}
         />
       )}
+
+      {data && (
+        <div className="sec">
+          <span className="sec-n">05</span>
+          <span className="sec-t">Recruiter view</span>
+          <span className="sec-rule" />
+        </div>
+      )}
+      {data && (
+        <HRPanel
+          candidateName={data.result.candidate_name || data.candidate.name || "Candidate"}
+          jobTitle={data.result.job_title || data.job.title || "the role"}
+          strengths={candidateStrengths(data)}
+          gaps={data.result.gaps.map((g) => g.skill)}
+          overallScore={data.result.overall_score}
+          verdict={data.result.verdict}
+          summary={data.result.summary}
+        />
+      )}
+
+      {twin && (
+        <div className="sec">
+          <span className="sec-n">06</span>
+          <span className="sec-t">Career Twin</span>
+          <span className="sec-rule" />
+        </div>
+      )}
+      {twin && <CareerTwinView twin={twin} />}
       </main>
     </div>
   );

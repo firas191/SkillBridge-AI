@@ -1,11 +1,15 @@
 import type {
   AdhocMatchResponse,
+  CareerTwin,
+  HRRecommendation,
+  HRRequest,
   InterviewPlan,
   InterviewPlanRequest,
   InterviewReport,
   InterviewReportRequest,
   LearningPlan,
   LearningPlanRequest,
+  TwinSaveRequest,
 } from "./types";
 
 const API_BASE = (import.meta.env.VITE_API_BASE as string) || "/api";
@@ -84,4 +88,30 @@ export async function getInterviewReport(
     body: JSON.stringify(payload),
   });
   return handle<InterviewReport>(res);
+}
+
+export async function getHrRecommendation(
+  payload: HRRequest,
+): Promise<HRRecommendation> {
+  const res = await fetch(`${API_BASE}/hr/recommendation`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(payload),
+  });
+  return handle<HRRecommendation>(res);
+}
+
+export async function saveToTwin(
+  payload: TwinSaveRequest,
+): Promise<{ twin_id: string; saved: boolean }> {
+  const res = await fetch(`${API_BASE}/twin/save`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(payload),
+  });
+  return handle<{ twin_id: string; saved: boolean }>(res);
+}
+
+export async function getTwin(id: string): Promise<CareerTwin> {
+  return handle<CareerTwin>(await fetch(`${API_BASE}/twin/${id}`));
 }

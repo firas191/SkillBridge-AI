@@ -20,10 +20,12 @@ from app.api.routes import (
     candidates,
     documents,
     health,
+    hr,
     interview,
     jobs,
     learning,
     matching,
+    twin,
 )
 from app.core.config import get_settings
 from app.core.llm import LLMCallError, LLMNotConfiguredError
@@ -81,6 +83,8 @@ def create_app() -> FastAPI:
     app.include_router(matching.router)
     app.include_router(learning.router)
     app.include_router(interview.router)
+    app.include_router(hr.router)
+    app.include_router(twin.router)
 
     @app.get("/", tags=["system"])
     def root() -> dict:

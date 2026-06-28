@@ -69,10 +69,9 @@ def match_adhoc(payload: AdhocMatchIn) -> AdhocMatchOut:
         raise HTTPException(
             status_code=504,
             detail=(
-                f"The model did not respond within {timeout}s. If you're running a "
-                "local model, it's likely too large for your GPU and offloading to "
-                "CPU — switch to a smaller/faster model (e.g. llama3.2:3b) or lower "
-                "num_ctx. If on the NVIDIA free tier, the 70B model is often too slow."
+                f"The model did not respond within {timeout}s. The provider may be "
+                "slow or rate-limited — wait a moment and retry, or switch to a "
+                "faster model / higher tier in backend/.env."
             ),
         ) from exc
     finally:

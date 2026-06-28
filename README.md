@@ -1,70 +1,312 @@
-# SkillBridge AI
+<h1 align="center">SkillBridge AI</h1>
 
-An explainable, skill-based copilot that connects **education to employment** —
-parsing CVs and job descriptions into a structured skill graph, then producing
-transparent, evidence-backed match decisions instead of brittle keyword screens.
+<p align="center"><em>The distance between a résumé and a role — measured, explained, and closed.</em></p>
 
-This repository is a **production-oriented build**, not a demo notebook. The
-LLM layer is provider-agnostic, the skill vocabulary is a real taxonomy
-(curated seed, mergeable with the full EU **ESCO** classification), and the
-core engine ships with a deterministic, offline test suite.
-
-> **Status — Iteration 1: the foundation.** We deliberately started with the
-> hardest, most load-bearing module: **structured skill extraction + the
-> explainable match engine**. Every other module in the brief (learning coach,
-> interview simulator, HR agent, AI Career Twin) consumes the skill graph this
-> module produces, so building it first de-risks the entire project. See the
-> [Roadmap](#roadmap).
+<p align="center">
+An explainable, skill-based AI copilot that connects <b>education to employment</b>.
+It reads a CV and a job description, extracts evidence-backed skills, scores the fit
+with full transparency, and turns every gap into a plan — across matching, learning,
+interview practice, recruiting, and a living career profile.
+</p>
 
 ---
 
-## Why these engineering choices
+## Table of contents
 
-**Provider-agnostic LLM (NVIDIA NIM ↔ local Ollama, one env var).**
-The brief specifies NVIDIA NIM + Llama 3.1. NIM's free tier is real but
-*limited* (~1k–5k credits, ~40 req/min), which is fine for development but
-would throttle a real product. So the entire app talks to the model through a
-single factory (`app/core/llm.py`). Set `LLM_PROVIDER=nvidia` to use NIM's free
-credits today; switch to `LLM_PROVIDER=openai_compatible` pointed at a local
-**Ollama** running Llama 3.1 for free, unlimited, fully-private inference — with
-**zero code changes**.
-
-**Explainability is structural, not cosmetic.** Both sides are normalized onto
-a canonical skill taxonomy, so a candidate's "ReactJS" and a job's "React.js"
-compare on the same ID. The match score is a transparent weighted average; each
-requirement carries a status (matched / partial / missing), a rationale, and the
-candidate's supporting evidence snippet. Adjacent skills (taxonomy "related"
-links) earn *partial* credit — this is what surfaces strong non-traditional
-candidates that keyword filters drop.
-
-**Deterministic core.** The scoring engine and skill normalizer make **no LLM
-calls**, so results are reproducible and the test suite runs offline with no API
-key.
+- [Why SkillBridge](#why-skillbridge)
+- [Features](#features)
+- [How it works](#how-it-works)
+- [Tech stack](#tech-stack)
+- [Getting started](#getting-started)
+- [Choosing your AI provider](#choosing-your-ai-provider)
+- [Using the app](#using-the-app)
+- [API reference](#api-reference)
+- [Project structure](#project-structure)
+- [Prompt engineering](#prompt-engineering)
+- [Responsible AI](#responsible-ai)
+- [Testing](#testing)
 
 ---
 
-## Architecture
+## Why SkillBridge
 
-```
-CV / Job text
-     │
-     ▼
-[ Extraction chains ]  LangChain + Llama 3.1 → strict JSON (Raw* schemas)
-     │                 robust parser w/ JSON-repair retry (portable across providers)
-     ▼
-[ Skill normalizer ]  free-text skill → canonical taxonomy ID
-     │                 exact → fuzzy (RapidFuzz) → semantic (optional embeddings)
-     ▼
-[ Match engine ]      canonical candidate skills × weighted job requirements
-     │                 → matched/partial/missing + rationale + evidence
-     ▼
-[ MatchResult ]       overall score, verdict, coverage, gaps, learning recs
-     │
-     ├── FastAPI  (REST + OpenAPI docs at /docs, SQLite persistence)
-     └── React UI (paste CV + job → explainable result)
+Education and recruitment are disconnected. Learners finish courses without knowing if
+they're ready for real jobs. Recruiters screen CVs by keyword and miss strong,
+non-traditional candidates. Hiring decisions rest on weak, unexplained evidence, and
+interview prep is rarely realistic or role-specific.
+
+**SkillBridge fixes the seam between learning and hiring.** A CV and a job description
+become a structured **skill graph**; the fit is scored **transparently** — every match
+cites the exact line that proves it — and the gaps become concrete action: a learning
+roadmap, a mock interview, a recruiter brief, and a profile that grows with you.
+
+It's built for everyone on both sides of that gap:
+
+| User | What they get |
+|------|----------------|
+| **Learners** | A clear, evidence-backed map of missing skills and a sequenced plan to close them. |
+| **Recruiters** | Explainable, skills-based screening with the evidence behind every match. |
+| **Hiring managers** | A tool-grounded recruiter brief and role-specific interview questions. |
+| **Educators** | Visibility into skill gaps and learning paths on a shared evidence base. |
+
+---
+
+## Features
+
+### 🎯 Explainable skill matching
+
+The heart of the system. Both the CV and the job are normalized onto a **canonical skill
+taxonomy**, so a candidate's "ReactJS" and a job's "React.js" compare on the same skill —
+not on noisy keyword overlap. The match score is a **transparent weighted average**, and
+every requirement carries:
+
+- a **status** — matched, partial, or missing,
+- a **rationale** in plain language, and
+- the candidate's **supporting evidence** quoted from their CV.
+
+It's also **fair by design**: adjacent skills (related in the taxonomy) earn *partial*
+credit, and "at least one of A / B / C" requirements are satisfiable by **any one** —
+so a candidate isn't penalized three times for a choice they actually meet. This is what
+surfaces strong, non-traditional candidates that keyword screens drop.
+
+### 🧠 Evidence-backed skill extraction
+
+A capable LLM reads the CV and extracts skills **with the evidence behind each one** —
+preferring concrete, metric-bearing achievements ("Deployed a local LLM via Flask, cutting
+drafting time 70%") over a generic skills list. It **infers implied skills** too
+("mentored juniors / led ceremonies" → Leadership, Teamwork, Agile), and handles
+**non-English CVs** (e.g. French) cleanly. A deterministic **anti-hallucination grounding
+guard** then drops any job requirement that the model invented but the posting never
+mentions.
+
+### 📄 Offline document intake (no API key)
+
+Drop in a **PDF, Word document, or an image / photo of a résumé**. Digital PDFs and Word
+files are read with `pdfplumber` / `python-docx`; scanned PDFs and images go through
+**RapidOCR** (PaddleOCR-grade models) with a noise-resistance preprocessing pass. **All
+file reading happens locally with no API key** — your CVs never leave the machine for
+parsing. The extracted text lands in an editable box so you can verify it before matching.
+
+### 📚 Adaptive Learning Coach
+
+Turns the match gaps into a **sequenced, personalized roadmap**. It prioritizes skills by
+prerequisites, **leverages your existing strengths** to accelerate new ones, and for each
+skill gives concepts, ordered steps, a **portfolio-building practice project**, real
+resource links (a curated catalog of official docs + reputable free courses, merged with
+the model's suggestions), and an estimated time. It closes with **week-by-week missions**,
+each ending in a tangible deliverable.
+
+### 🎤 Interview Simulator
+
+A **role-specific mock interview** seeded from your real strengths and the job's gaps —
+technical questions that probe your stated strengths, a behavioral question, a *gap*
+question that assesses how you'd ramp up, and a motivation question. You answer them one
+at a time, then get a **rubric-scored debrief**: a calibrated 0–5 grade per answer with
+specific feedback, "what a strong answer covers," plus strengths, areas to work on, and
+next steps. The overall score is **computed from the per-answer grades**, so it can't
+drift from them.
+
+### 🧰 HR Agent with tools
+
+A **tool-using agent** that gathers live market evidence — a **salary benchmark** (by role
+and seniority), **skill-demand** signals, a **market outlook**, and **fair-hiring
+guidelines** — then reasons over it into an **advisory recruiter brief**: a recommendation
+(advance / interview-with-focus / hold / not-yet), the rationale, interview focus areas,
+risks, and responsible-hiring notes. Every tool call and its source is shown for full
+transparency, and it stays explicitly **decision support** — a human makes the final call.
+
+### ♻️ AI Career Twin
+
+The flagship extension: a **persistent, living profile**. Save a match to your Twin and it
+accumulates your activity — matches across roles, interview practice, learning plans —
+into one evolving picture with aggregate stats, **recurring-gap detection across roles**,
+an activity timeline, and an **AI briefing** on your momentum, the direction you're
+strongest positioned for, and your next missions. Generating a plan or finishing an
+interview **auto-logs to your Twin**, tying the whole loop together: *learn → practice →
+prove → interview → match* on one trusted evidence base. It persists across sessions.
+
+### 🔌 Provider-agnostic AI
+
+The entire app talks to the model through one interface, so you can run it on **NVIDIA NIM
+(Llama 3.1)**, **Google Gemini**, or a **local Ollama** model — switchable with a single
+environment variable, **no code changes**. Develop on free cloud credits today; flip to a
+fully local, private, unlimited model whenever you want.
+
+### 🎨 Editorial, professional UI
+
+A deliberately distinctive React interface — a warm, print-inspired "editorial" design
+with a serif display typeface, a single confident accent, hairline structure, and numbered
+sections. Polished score gauges, gradient-free clarity, file-upload cards, and rich result
+views. It reads like a serious product, not a demo.
+
+### 🛡️ Engineered like a product
+
+- **Robust structured output** — explicit JSON schemas + a repair pass make extraction
+  reliable across every provider.
+- **Determinism where it matters** — scores, evidence, the grounding guard, and tool
+  results are computed in code, so they're explainable and reproducible.
+- **Clean error handling** — provider timeouts and rate limits surface as readable
+  messages, never raw crashes.
+- **~45 automated tests** plus an extraction-recall evaluation harness.
+
+---
+
+## How it works
+
+One shared pipeline: documents become a structured skill graph, the match is computed
+deterministically, and every module reuses the same trusted evidence base.
+
+```mermaid
+flowchart TD
+    subgraph IN["Inputs"]
+        CV["Candidate CV<br/>(paste / PDF / Word / image)"]
+        JD["Job description<br/>(paste / PDF / Word / image)"]
+    end
+
+    OCR["Offline document reader<br/>(pdfplumber / python-docx / RapidOCR)"]
+    CV --> OCR
+    JD --> OCR
+
+    subgraph EXTRACT["Extraction — LLM (structured JSON + repair)"]
+        CE["Candidate extraction<br/>skills + evidence"]
+        JE["Job extraction<br/>weighted requirements"]
+        GG["Grounding guard<br/>drops invented requirements"]
+        JE --> GG
+    end
+
+    OCR --> CE
+    OCR --> JE
+
+    NORM["Skill normalizer<br/>→ canonical taxonomy (ESCO-mergeable)"]
+    CE --> NORM
+    GG --> NORM
+
+    ENGINE["Explainable Match Engine<br/>(deterministic — no LLM)"]
+    NORM --> ENGINE
+    RESULT["MatchResult<br/>score · verdict · rationale · evidence · gaps"]
+    ENGINE --> RESULT
+
+    subgraph DOWN["Downstream modules"]
+        COACH["Adaptive Learning Coach"]
+        SIM["Interview Simulator"]
+        AGENT["HR Agent (tools → LLM)"]
+    end
+    RESULT --> COACH
+    RESULT --> SIM
+    RESULT --> AGENT
+
+    TWIN["AI Career Twin<br/>(persistence + briefing)"]
+    RESULT --> TWIN
+    SIM --> TWIN
+    COACH --> TWIN
 ```
 
-### Repository layout
+**The LLM understands language; the scoring and the evidence are computed in code.** That
+split is what makes every recommendation explainable and reproducible.
+
+---
+
+## Tech stack
+
+| Layer | Technology |
+|-------|-----------|
+| Backend | **FastAPI** (Python 3.11+), Pydantic, SQLAlchemy (SQLite) |
+| Frontend | **React + TypeScript + Vite**, an editorial design system |
+| LLM orchestration | **LangChain**, provider-agnostic (NVIDIA NIM · Gemini · Ollama) |
+| Skills | Canonical taxonomy (curated seed, **ESCO**-mergeable), RapidFuzz normalization |
+| Documents | pdfplumber, python-docx, **RapidOCR** (ONNX), PyMuPDF |
+| Market data | Bundled salary / skill-demand datasets (live-API upgrade path) |
+| Tests | pytest (~45 tests), extraction-recall harness |
+
+---
+
+## Getting started
+
+### Backend
+
+```bash
+cd backend
+python -m venv .venv && .venv\Scripts\activate     # macOS/Linux: source .venv/bin/activate
+pip install -r requirements.txt
+cp .env.example .env                                # then set your provider (below)
+uvicorn app.main:app --reload                       # API + docs at http://localhost:8000/docs
+```
+
+### Frontend
+
+```bash
+cd frontend
+npm install
+npm run dev                                          # http://localhost:5173 (proxies /api -> :8000)
+```
+
+Open **http://localhost:5173**, paste or upload a CV and a job description, and click
+**Run explainable match**.
+
+---
+
+## Choosing your AI provider
+
+Set these in `backend/.env`. Switching providers is a one-line change.
+
+**Google Gemini** (generous free tier, 1M-token context)
+
+```ini
+LLM_PROVIDER=openai_compatible
+OPENAI_BASE_URL=https://generativelanguage.googleapis.com/v1beta/openai/
+OPENAI_API_KEY=your-gemini-key            # free at https://aistudio.google.com/apikey
+OPENAI_CHAT_MODEL=gemini-2.5-flash        # or gemini-2.5-flash-lite for higher free limits
+```
+
+**NVIDIA NIM** (free dev credits, Llama 3.1)
+
+```ini
+LLM_PROVIDER=nvidia
+NVIDIA_API_KEY=nvapi-...                   # free at https://build.nvidia.com
+NVIDIA_CHAT_MODEL=meta/llama-3.1-8b-instruct
+```
+
+**Local Ollama** (free, unlimited, fully private)
+
+```ini
+LLM_PROVIDER=openai_compatible
+OPENAI_BASE_URL=http://localhost:11434/v1
+OPENAI_API_KEY=ollama
+OPENAI_CHAT_MODEL=llama3.1:8b              # after: ollama pull llama3.1:8b
+```
+
+---
+
+## Using the app
+
+1. **Match** — paste/upload a CV + job description → *Run explainable match*. Get the score,
+   verdict, per-skill evidence, gaps, and extra strengths.
+2. **Save to Career Twin** — turn the assessment into a persistent living profile.
+3. **Generate learning plan** — gaps become a sequenced roadmap with practice projects.
+4. **Interview practice** — a tailored mock interview with a scored debrief.
+5. **Recruiter view** — a tool-grounded, advisory hiring brief.
+6. **Career Twin** — watch your profile grow across roles, with an AI briefing and timeline.
+
+---
+
+## API reference
+
+Interactive docs at `/docs`.
+
+| Method | Path | Purpose |
+|-------:|------|---------|
+| GET  | `/health` | Status, active provider/model, taxonomy size |
+| POST | `/documents/extract-text` | Read a PDF / Word / image into text (offline OCR) |
+| POST | `/match/adhoc` | One-shot explainable match from CV + job text |
+| POST | `/match` · `/candidates/text` · `/jobs/text` | Persisted match against stored candidate/job |
+| POST | `/learning-plan` | Turn match gaps into a sequenced learning plan |
+| POST | `/interview/start` · `/interview/report` | Mock-interview questions → scored debrief |
+| POST | `/hr/recommendation` | Tool-grounded, advisory recruiter brief |
+| POST | `/twin/save` · GET `/twin/{id}` | Save activity to / read the Career Twin |
+
+---
+
+## Project structure
 
 ```
 SkillBridge AI/
@@ -72,170 +314,71 @@ SkillBridge AI/
 │   ├── app/
 │   │   ├── core/         config, logging, provider-agnostic LLM factory
 │   │   ├── db/           SQLAlchemy models + session
-│   │   ├── schemas/      Pydantic: extraction, match, API I/O
+│   │   ├── schemas/      Pydantic: extraction, match, learning, interview, hr, twin
 │   │   ├── services/
 │   │   │   ├── taxonomy/   canonical skill store + normalizer
-│   │   │   ├── extraction/ document parsing + LLM extraction chains
-│   │   │   └── matching/   explainable match engine (deterministic)
-│   │   ├── api/routes/   health, candidates, jobs, matching
-│   │   └── main.py       FastAPI app factory
-│   ├── tests/            offline pytest suite (no API key needed)
+│   │   │   ├── extraction/ document parsing + LLM extraction + grounding
+│   │   │   ├── matching/   explainable match engine (deterministic)
+│   │   │   ├── learning/   adaptive learning coach + resource catalog
+│   │   │   ├── interview/  interview simulator (questions + grading)
+│   │   │   ├── hr/         tool-using HR agent + market datasets
+│   │   │   └── twin/       Career Twin persistence + briefing
+│   │   ├── api/routes/   health, documents, matching, learning, interview, hr, twin
+│   │   └── main.py
+│   ├── tests/            ~45 offline tests (no API key needed)
 │   └── requirements.txt
-├── frontend/             React + Vite + TypeScript match workspace
-├── data/taxonomy/        curated skill seed (ESCO-mergeable)
-├── scripts/ingest_esco.py
-├── docker-compose.yml    backend (+ optional local Ollama profile)
-└── Makefile
+├── frontend/             React + Vite + TypeScript (editorial UI)
+├── data/                 skill taxonomy, learning resources, market datasets
+├── scripts/              ESCO ingestion, extraction-recall evaluation
+└── docs/                 project brief · workflow · prompt library · structured outputs
 ```
 
 ---
 
-## Quick start
+## Prompt engineering
 
-### 1. Backend
+Seven production prompts power the reasoning, each pairing a **system** prompt (role +
+rules) with a **template** (data + an explicit JSON shape): candidate extraction, job
+extraction, the learning coach, interview question generation, interview grading, the HR
+brief, and the Career-Twin briefing. Cross-cutting techniques:
 
-```bash
-cd backend
-python -m venv .venv && source .venv/bin/activate    # Windows: .venv\Scripts\activate
-pip install -r requirements.txt
-cp .env.example .env
-```
+- **Explicit JSON shapes** in the template (not just function calling) so the prompts work
+  identically across NVIDIA NIM, Gemini, and local Ollama.
+- **Robust parsing** — strip fences → extract the JSON object → validate against a Pydantic
+  schema → one repair retry on failure.
+- **Calibration** — intern/junior-aware requirement importance, an "at least one of"
+  alternatives mechanism, and an anti-inflation interview rubric.
+- **Low/zero temperature** for faithful, reproducible structure.
 
-Then pick a provider in `.env`:
-
-**Option A — NVIDIA NIM (brief default, free dev credits)**
-```ini
-LLM_PROVIDER=nvidia
-NVIDIA_API_KEY=nvapi-...        # free key from https://build.nvidia.com
-NVIDIA_CHAT_MODEL=meta/llama-3.1-8b-instruct
-```
-
-**Option B — Local Ollama (free, unlimited, private)**
-```bash
-# install Ollama from https://ollama.com, then:
-ollama pull llama3.1:8b
-```
-```ini
-LLM_PROVIDER=openai_compatible
-OPENAI_BASE_URL=http://localhost:11434/v1
-OPENAI_API_KEY=ollama
-OPENAI_CHAT_MODEL=llama3.1:8b
-```
-
-Run it:
-```bash
-uvicorn app.main:app --reload --port 8000
-# API docs: http://localhost:8000/docs
-```
-
-### 2. Frontend
-
-```bash
-cd frontend
-npm install
-npm run dev        # http://localhost:5173  (proxies /api -> :8000)
-```
-
-Open the app, click **Load sample**, then **Run explainable match**.
-
-### 3. Tests (no API key required)
-
-```bash
-cd backend
-python -m pytest
-```
-
----
-
-## Using the full ESCO taxonomy (real data, ~13.9k skills)
-
-The seed taxonomy covers the most common tech/business skills. To normalize
-against the authoritative EU reference vocabulary:
-
-1. Download the free ESCO classification CSV (your language) from
-   <https://esco.ec.europa.eu/en/use-esco/download> (you must accept the
-   licence) → you'll get e.g. `skills_en.csv`.
-2. Convert it to the merge format:
-   ```bash
-   python scripts/ingest_esco.py /path/to/skills_en.csv --out data/taxonomy/esco_skills.csv
-   ```
-3. Point the backend at it in `.env`:
-   ```ini
-   ESCO_SKILLS_CSV=data/taxonomy/esco_skills.csv
-   ```
-Your curated seed always wins on ID collisions, so hand-tuned aliases are kept
-while ESCO fills the long tail.
-
-> **Real model datasets.** If/when a module fine-tunes or evaluates a model,
-> use real corpora rather than synthetic toys — e.g. Kaggle resume datasets,
-> public job-posting datasets, and the ESCO occupation↔skill relations above.
-> No training is required for this foundation module (it's retrieval + LLM
-> extraction), so we ship the real taxonomy instead.
-
----
-
-## API surface (Iteration 1)
-
-| Method | Path                      | Purpose                                              |
-|-------:|---------------------------|------------------------------------------------------|
-| GET    | `/health`                 | Status, active provider/model, taxonomy size         |
-| POST   | `/documents/extract-text` | Read a PDF / Word / image into text (offline OCR)    |
-| POST   | `/candidates/text`        | Extract + persist a candidate profile from CV text   |
-| POST   | `/candidates/upload`      | Same, from an uploaded PDF / DOCX / TXT             |
-| GET    | `/candidates`             | List candidates                                      |
-| POST   | `/jobs/text`              | Extract + persist a job profile                      |
-| POST   | `/match`                  | Score a stored candidate against a stored job        |
-| POST   | `/match/adhoc`            | One-shot: paste CV + job, get explainable result     |
-| POST   | `/learning-plan`          | Turn match gaps into a sequenced, resourced learning plan |
-| POST   | `/interview/start`        | Generate tailored mock-interview questions               |
-| POST   | `/interview/report`       | Grade an answered transcript into a scored debrief       |
-
-Full interactive schema at `/docs`.
-
-### Document upload & offline OCR
-
-Both the CV and job inputs accept **PDF, Word (.docx), and images (PNG/JPG/…)**,
-read **entirely offline with no API key**:
-
-* Digital PDFs / Word → fast text extraction (pdfplumber / python-docx).
-* Scanned PDFs and images → **RapidOCR** (PaddleOCR's detection/recognition
-  models via ONNX Runtime) with a noise-resistance preprocessing pass
-  (grayscale, auto-contrast, upscaling). Scanned PDF pages are rendered at
-  300 DPI with PyMuPDF before OCR.
-
-The UI uploads the file, shows the extracted text in an **editable** box (so you
-can verify/fix OCR output), then runs the normal match. Only the skill-reasoning
-step uses the configured LLM; all file reading is local.
-
----
-
-## Roadmap
-
-The foundation exposes a clean, reusable skill graph + match engine. Remaining
-modules from the brief build directly on it:
-
-1. ~~**Adaptive Learning Coach**~~ ✅ **Built** — turns `MatchResult.gaps` into a
-   sequenced upskilling roadmap: prioritized skill modules (concepts, steps, a
-   portfolio practice project, real resources) plus week-by-week missions.
-   See `POST /learning-plan` and the in-app "Generate learning plan" flow.
-2. ~~**Interview Simulator**~~ ✅ **Built** — a role-specific mock interview:
-   tailored questions from the candidate's strengths + the role's gaps, answered
-   one at a time, then a rubric-scored debrief (per-answer feedback, strengths,
-   improvements, next steps). See `POST /interview/start` + `/interview/report`.
-3. **HR Agent with tools** — a tool-using agent calling live job-market / salary
-   APIs to enrich and benchmark match results.
-4. **AI Career Twin** — a persisted, evolving profile across learn → practice →
-   prove → interview → match, reusing the same trusted evidence base.
+See `docs/03-prompt-library.md` for the full library, and `docs/02-workflow.md` for the
+annotated pipeline.
 
 ---
 
 ## Responsible AI
 
-This system **supports** educators and recruiters; it does not replace them.
-Every recommendation is traceable to evidence and a transparent score.
-The matcher compares on skills and evidence — not school name, gender, age, or
-nationality — and rewards adjacent skills to reduce bias against non-traditional
-paths. CVs and transcripts are sensitive data: keep `.env` secrets out of
-version control, and prefer the local-Ollama provider when data must not leave
-your environment.
+Built in from the start, because this touches education and recruitment:
+
+- **Fairness** — matching compares on **skills and evidence only**, never school, age,
+  gender, or nationality, and rewards adjacent skills so non-traditional paths aren't
+  penalized. Fair-hiring guidelines are injected into the recruiter brief.
+- **Human-in-the-loop** — the HR Agent is explicitly *decision support*, with a disclaimer
+  that a human decides; uploaded text is shown for verification before use.
+- **Privacy** — document reading is fully offline with no API key, and a local-Ollama
+  provider keeps all data on-device. Secrets live only in a gitignored `.env`.
+- **Transparency** — every recommendation shows its evidence, and the HR Agent exposes the
+  exact tools and data it used.
+
+---
+
+## Testing
+
+```bash
+cd backend
+.venv\Scripts\python.exe -m pytest          # ~45 deterministic tests, no API key needed
+python scripts/eval_extraction.py           # live extraction-recall evaluation (needs a provider)
 ```
+
+The core engine — normalization, scoring, explainability, grounding, and every module's
+service and endpoint — is covered offline with the LLM mocked, so the suite is fast and
+reproducible.

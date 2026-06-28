@@ -1,0 +1,79 @@
+{
+  "version": "1.0.0",
+  "currency_default": "USD",
+  "source": "Curated, indicative annual gross compensation by seniority, synthesised from public salary surveys and labour-market reports. Figures are directional, not authoritative — swap in a live source (e.g. Adzuna Jobs API) via API keys for production. Seniority keys: intern, junior, mid, senior, lead.",
+  "roles": {
+    "software engineer": {
+      "aliases": ["software developer", "developer", "swe", "programmer", "full-stack engineer", "full stack engineer", "backend engineer", "frontend engineer"],
+      "salary": {"intern": [38000, 52000, 70000], "junior": [62000, 78000, 95000], "mid": [90000, 115000, 140000], "senior": [130000, 160000, 200000], "lead": [160000, 195000, 250000]},
+      "demand": "high", "trend": "growing", "competition": "high",
+      "note": "Broad, durable demand across industries; strong fundamentals matter more than any single stack."
+    },
+    "ai engineer": {
+      "aliases": ["ai & automation engineer", "ai and automation engineer", "ai automation engineer", "applied ai engineer", "ai developer", "genai engineer", "llm engineer"],
+      "salary": {"intern": [42000, 58000, 78000], "junior": [70000, 90000, 110000], "mid": [105000, 135000, 165000], "senior": [150000, 185000, 235000], "lead": [185000, 225000, 290000]},
+      "demand": "very_high", "trend": "surging", "competition": "very_high",
+      "note": "One of the fastest-growing roles; LLM/agent and evaluation experience is in especially short supply."
+    },
+    "machine learning engineer": {
+      "aliases": ["ml engineer", "mle", "deep learning engineer"],
+      "salary": {"intern": [45000, 60000, 80000], "junior": [75000, 95000, 115000], "mid": [115000, 145000, 175000], "senior": [160000, 195000, 245000], "lead": [195000, 235000, 300000]},
+      "demand": "very_high", "trend": "growing", "competition": "very_high",
+      "note": "High demand; productionising models (MLOps) commands a premium over pure modelling."
+    },
+    "data scientist": {
+      "aliases": ["ds", "applied scientist"],
+      "salary": {"intern": [40000, 55000, 72000], "junior": [68000, 85000, 105000], "mid": [100000, 125000, 155000], "senior": [140000, 170000, 215000], "lead": [170000, 205000, 260000]},
+      "demand": "high", "trend": "stable", "competition": "high",
+      "note": "Demand shifting toward candidates who can ship models, not only analyse data."
+    },
+    "data analyst": {
+      "aliases": ["business analyst", "bi analyst", "analytics"],
+      "salary": {"intern": [32000, 44000, 58000], "junior": [50000, 62000, 78000], "mid": [72000, 88000, 110000], "senior": [100000, 120000, 150000], "lead": [125000, 150000, 185000]},
+      "demand": "high", "trend": "stable", "competition": "moderate",
+      "note": "Steady demand; SQL + a BI tool + clear communication is the reliable core."
+    },
+    "data engineer": {
+      "aliases": ["analytics engineer", "etl engineer"],
+      "salary": {"intern": [40000, 54000, 70000], "junior": [70000, 88000, 108000], "mid": [105000, 130000, 160000], "senior": [145000, 175000, 220000], "lead": [175000, 210000, 265000]},
+      "demand": "high", "trend": "growing", "competition": "high",
+      "note": "Pipelines, warehouses and orchestration skills are consistently sought after."
+    },
+    "devops engineer": {
+      "aliases": ["site reliability engineer", "sre", "platform engineer", "cloud engineer"],
+      "salary": {"intern": [40000, 54000, 70000], "junior": [70000, 88000, 108000], "mid": [110000, 138000, 168000], "senior": [150000, 185000, 230000], "lead": [185000, 220000, 275000]},
+      "demand": "high", "trend": "growing", "competition": "high",
+      "note": "Cloud + IaC + CI/CD remains a strong, well-paid specialisation."
+    },
+    "frontend engineer": {
+      "aliases": ["front-end developer", "ui engineer", "react developer"],
+      "salary": {"intern": [36000, 48000, 64000], "junior": [58000, 72000, 90000], "mid": [88000, 110000, 135000], "senior": [125000, 155000, 190000], "lead": [150000, 185000, 230000]},
+      "demand": "high", "trend": "stable", "competition": "high",
+      "note": "React/TypeScript depth and accessibility/perf awareness differentiate candidates."
+    },
+    "mobile engineer": {
+      "aliases": ["ios developer", "android developer", "mobile developer", "flutter developer"],
+      "salary": {"intern": [36000, 50000, 66000], "junior": [60000, 76000, 94000], "mid": [92000, 115000, 140000], "senior": [130000, 160000, 195000], "lead": [155000, 190000, 235000]},
+      "demand": "moderate", "trend": "stable", "competition": "moderate",
+      "note": "Steady demand; cross-platform (Flutter/React Native) widens opportunities."
+    },
+    "product manager": {
+      "aliases": ["product owner", "pm", "associate product manager"],
+      "salary": {"intern": [40000, 54000, 72000], "junior": [70000, 88000, 110000], "mid": [110000, 138000, 170000], "senior": [150000, 185000, 235000], "lead": [185000, 225000, 285000]},
+      "demand": "moderate", "trend": "stable", "competition": "high",
+      "note": "Outcomes-and-discovery framing beats feature-factory experience."
+    },
+    "ux designer": {
+      "aliases": ["ui designer", "product designer", "ux/ui designer"],
+      "salary": {"intern": [32000, 44000, 58000], "junior": [52000, 66000, 82000], "mid": [80000, 100000, 125000], "senior": [115000, 140000, 175000], "lead": [140000, 170000, 210000]},
+      "demand": "moderate", "trend": "stable", "competition": "moderate",
+      "note": "Portfolio quality and research rigour matter more than tool lists."
+    },
+    "cybersecurity engineer": {
+      "aliases": ["security engineer", "infosec engineer", "penetration tester"],
+      "salary": {"intern": [40000, 54000, 70000], "junior": [70000, 88000, 110000], "mid": [108000, 135000, 165000], "senior": [150000, 185000, 235000], "lead": [185000, 225000, 285000]},
+      "demand": "very_high", "trend": "growing", "competition": "moderate",
+      "note": "Persistent talent shortage; hands-on/lab experience is highly valued."
+    }
+  }
+}
